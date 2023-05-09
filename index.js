@@ -13,15 +13,25 @@ const updatePaginationDiv = (currentPage, numPages, pokemons) => {
         `)
     }
     for (let i = startPage; i <= endPage; i++) {
-        $('#pagination').append(`
-            <button class="btn btn-primary page ml-1 numberedButtons" value="${i}">${i}</button>
-        `)
+        if (i == currentPage) {
+            $('#pagination').append(`
+                <button class="btn btn-primary page ml-1 numberedButtons active" value="${i}">${i}</button>
+            `)
+        } else {
+            $('#pagination').append(`
+                <button class="btn btn-primary page ml-1 numberedButtons" value="${i}">${i}</button>
+            `)
+        }
     }
     if (endPage < pokemons.length/PAGE_SIZE) {
         $('#pagination').append(`
             <button class="btn btn-primary page ml-1 numberedButtons" value="${currentPage + 1}">Next</button>
         `)
     }
+
+    $('#numberResults').empty()
+    $('#numberResults').append(`<h3>Showing ${PAGE_SIZE} of ${pokemons.length}</h3>`)
+
 }
 
 const paginate = async (currentPage, PAGE_SIZE, pokemons) => {
@@ -29,17 +39,17 @@ const paginate = async (currentPage, PAGE_SIZE, pokemons) => {
 
     $('#pokeCards').empty()
     selected_pokemons.forEach(async (pokemon) => {
-    const res = await axios.get(pokemon.url)
-    $('#pokeCards').append(`
-            <div class="card text-center pokeCard" style="width: 18rem;" pokeName=${pokemon.name}>
-                <h2 class="card-title">${pokemon.name.toUpperCase()}</h2>
-                <img src="${res.data.sprites.front_default}" class="card-img-top" alt="${pokemon.name}">
-                <div class="card-body">
-                    <button class="btn btn-primary moreInfo" id=${pokemon.name} data-toggle="modal" data-target="#pokeModal">More</button>
+        const res = await axios.get(pokemon.url)
+        $('#pokeCards').append(`
+                <div class="card text-center pokeCard" style="width: 18rem;" pokeName=${pokemon.name}>
+                    <h2 class="card-title">${pokemon.name.toUpperCase()}</h2>
+                    <img src="${res.data.sprites.front_default}" class="card-img-top" alt="${pokemon.name}">
+                    <div class="card-body">
+                        <button class="btn btn-primary moreInfo" id=${pokemon.name} data-toggle="modal" data-target="#pokeModal">More</button>
+                    </div>
                 </div>
-            </div>
-        `)
-  })
+            `)
+    })
 }
 
 
