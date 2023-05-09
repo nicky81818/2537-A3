@@ -11,7 +11,7 @@ const setup = async () => {
                 <h2 class="card-title">${pokemon.name.toUpperCase()}</h2>
                 <img src="${res.data.sprites.front_default}" class="card-img-top" alt="${pokemon.name}">
                 <div class="card-body">
-                    <button class="btn btn-primary" id="${pokemon.name}">More</button>
+                    <button class="btn btn-primary" id="${pokemon.name}" data-toggle="modal" data-target="#pokeModal">More</button>
                 </div>
             </div>
         `)
