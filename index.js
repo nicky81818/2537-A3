@@ -2,6 +2,20 @@ const PAGE_SIZE = 10
 let currentPage = 1
 let pokemons = []
 
+const loadTypes = async () => {
+    const res = await axios.get('https://pokeapi.co/api/v2/type')
+    const types = res.data.results
+    types.forEach((type) => {
+        $('#typeChecks').append(`
+            <span class="checkPair">
+                <input type="checkbox" class="form-check-input typeCheck" id="${type.name}" value="${type.name}">
+                <label class="form-check-label" for="${type.name}">${type.name.charAt(0).toUpperCase()}${type.name.slice(1)}</label>
+            </span>
+        `)
+    })
+}
+
+
 const updatePaginationDiv = (currentPage, numPages, pokemons) => {
     $('#pagination').empty()
 
@@ -54,6 +68,7 @@ const paginate = async (currentPage, PAGE_SIZE, pokemons) => {
 
 
 const setup = async () => {
+    loadTypes()
     const res = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=810')
     pokemons = res.data.results
     paginate(currentPage, PAGE_SIZE, pokemons)
