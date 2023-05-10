@@ -74,7 +74,7 @@ const paginate = async (currentPage, PAGE_SIZE, pokemons) => {
                     <h2 class="card-title">${pokemon.name.toUpperCase()}</h2>
                     <img src="${res.data.sprites.front_default}" class="card-img-top" alt="${pokemon.name}">
                     <div class="card-body">
-                        <button class="btn btn-primary moreInfo" id=${pokemon.name} data-toggle="modal" data-target="#pokeModal">More</button>
+                        <button class="btn btn-warning moreInfo" id=${pokemon.name} data-toggle="modal" data-target="#pokeModal">More</button>
                     </div>
                 </div>
             `)

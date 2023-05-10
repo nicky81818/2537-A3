@@ -17,3 +17,14 @@
     flex-direction: row;
     justify-content: space-between;
 }
+.card {
+    border-radius: 10px;
+    border: 5px solid navy;
+    background-color: rgb(57, 57, 233);
+    scale: 0.65;
+}
+#pokeCards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
