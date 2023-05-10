@@ -1,5 +1,6 @@
 const PAGE_SIZE = 10
 let currentPage = 1
+let numPages
 let pokemons = []
 let allTypes = []
 let allPokemon = []
@@ -60,7 +61,7 @@ const updatePaginationDiv = (currentPage, numPages, pokemons) => {
         size = pokemons.length
     }
     $('#numberResults').append(`<h3>Showing ${size} of ${pokemons.length} Pokemon</h3>`)
-
+    console.log(pokemons.length, startPage, currentPage, endPage, numPages)
 }
 
 const paginate = async (currentPage, PAGE_SIZE, pokemons) => {
@@ -120,7 +121,7 @@ const setup = async () => {
         else if (types.length == 2) {
             let filtered_pokemons = []
             pokemons.forEach((pokemon) => {
-                if (pokemon.types.includes(types[0],types[1])) {
+                if (pokemon.types.includes(types[0]) && pokemon.types.includes(types[1])) {
                     filtered_pokemons.push(pokemon)
                 }
             })
@@ -133,11 +134,12 @@ const setup = async () => {
             pokemons = allPokemon
         }
         paginate(currentPage, PAGE_SIZE, pokemons)
-        const numPages = Math.ceil(pokemons.length / PAGE_SIZE)
+        numPages = Math.ceil(pokemons.length / PAGE_SIZE)
         updatePaginationDiv(currentPage, numPages, pokemons)
+        console.log(numPages)
     })
     paginate(currentPage, PAGE_SIZE, pokemons)
-    const numPages = Math.ceil(pokemons.length / PAGE_SIZE)
+    numPages = Math.ceil(pokemons.length / PAGE_SIZE)
     updatePaginationDiv(currentPage, numPages, pokemons)
 
      $('body').on('click', '.pokeCard', async function (e) {
