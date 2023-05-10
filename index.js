@@ -59,7 +59,7 @@ const updatePaginationDiv = (currentPage, numPages, pokemons) => {
     if (pokemons.length < PAGE_SIZE) {
         size = pokemons.length
     }
-    $('#numberResults').append(`<h3>Showing ${size} of ${pokemons.length}</h3>`)
+    $('#numberResults').append(`<h3>Showing ${size} of ${pokemons.length} Pokemon</h3>`)
 
 }
 
