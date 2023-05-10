@@ -47,7 +47,7 @@ const updatePaginationDiv = (currentPage, numPages, pokemons) => {
                 `)
             }
         }
-        if (endPage < pokemons.length/PAGE_SIZE) {
+        if (currentPage < pokemons.length/PAGE_SIZE) {
             $('#pagination').append(`
                 <button class="btn btn-primary page ml-1 numberedButtons" value="${currentPage + 1}">Next</button>
             `)
