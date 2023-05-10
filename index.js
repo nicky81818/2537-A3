@@ -1,10 +1,15 @@
 const PAGE_SIZE = 10
 let currentPage = 1
 let pokemons = []
+let allTypes = []
+let allPokemon = []
 
 const loadTypes = async () => {
     const res = await axios.get('https://pokeapi.co/api/v2/type')
-    const types = res.data.results
+    return res.data.results
+}
+
+const populateTypes = (types) => {
     types.forEach((type) => {
         $('#typeChecks').append(`
             <span class="checkPair">
@@ -15,36 +20,46 @@ const loadTypes = async () => {
     })
 }
 
-
 const updatePaginationDiv = (currentPage, numPages, pokemons) => {
     $('#pagination').empty()
 
     const startPage = currentPage - 2 > 0 ? currentPage - 2 : 1;
     const endPage = currentPage + 2 < numPages ? currentPage + 2 : numPages;
-    if (currentPage > 1) {
+    if (pokemons.length < PAGE_SIZE) {
         $('#pagination').append(`
-            <button class="btn btn-primary page ml-1 numberedButtons" value="${currentPage - 1}">Previous</button>
-        `)
+            <button class="btn btn-primary page ml-1 numberedButtons active" value="1">1</button>`)
     }
-    for (let i = startPage; i <= endPage; i++) {
-        if (i == currentPage) {
+    else {
+
+        if (currentPage > 1) {
             $('#pagination').append(`
-                <button class="btn btn-primary page ml-1 numberedButtons active" value="${i}">${i}</button>
+                <button class="btn btn-primary page ml-1 numberedButtons" value="${currentPage - 1}">Previous</button>
             `)
-        } else {
+        }
+        for (let i = startPage; i <= endPage; i++) {
+            if (i == currentPage) {
+                $('#pagination').append(`
+                    <button class="btn btn-primary page ml-1 numberedButtons active" value="${i}">${i}</button>
+                `)
+            } else {
+                $('#pagination').append(`
+                    <button class="btn btn-primary page ml-1 numberedButtons" value="${i}">${i}</button>
+                `)
+            }
+        }
+        if (endPage < pokemons.length/PAGE_SIZE) {
             $('#pagination').append(`
-                <button class="btn btn-primary page ml-1 numberedButtons" value="${i}">${i}</button>
+                <button class="btn btn-primary page ml-1 numberedButtons" value="${currentPage + 1}">Next</button>
             `)
         }
     }
-    if (endPage < pokemons.length/PAGE_SIZE) {
-        $('#pagination').append(`
-            <button class="btn btn-primary page ml-1 numberedButtons" value="${currentPage + 1}">Next</button>
-        `)
-    }
 
     $('#numberResults').empty()
-    $('#numberResults').append(`<h3>Showing ${PAGE_SIZE} of ${pokemons.length}</h3>`)
+    let size = PAGE_SIZE
+    if (pokemons.length < PAGE_SIZE) {
+        size = pokemons.length
+    }
+    $('#numberResults').append(`<h3>Showing ${size} of ${pokemons.length}</h3>`)
 
 }
 
@@ -66,22 +81,69 @@ const paginate = async (currentPage, PAGE_SIZE, pokemons) => {
     })
 }
 
+const loadPokemon = async () => {
+    const res = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=810')
+    pokemons = res.data.results
+    pokemons.forEach(async (pokemon) => {
+        const res = await axios.get(pokemon.url)
+        let pokemonTypes = []
+        res.data.types.forEach((type) => {
+            pokemonTypes.push(type.type.name)
+        })
+        pokemon.types = pokemonTypes
+    })
+    return pokemons
+}
 
 const setup = async () => {
     loadTypes()
-    const res = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=810')
-    pokemons = res.data.results
+    allPokemon = await loadPokemon()
+    allTypes = await loadTypes()
+    populateTypes(allTypes)
+
+    $("body").on("click", ".typeCheck", async function() {
+        let types = []
+        $(".typeCheck").each(function() {
+            if ($(this).is(":checked")) {
+                types.push($(this).val())
+            }
+        })
+        if (types.length == 1) {
+            let filtered_pokemons = []
+            allPokemon.forEach((pokemon) => {
+                if (pokemon.types.includes(types[0])) {
+                    filtered_pokemons.push(pokemon)
+                }
+            })
+            pokemons = filtered_pokemons
+        }
+        else if (types.length == 2) {
+            let filtered_pokemons = []
+            pokemons.forEach((pokemon) => {
+                if (pokemon.types.includes(types[0],types[1])) {
+                    filtered_pokemons.push(pokemon)
+                }
+            })
+            pokemons = filtered_pokemons
+        }
+        else if (types.length > 2) {
+            pokemons = []
+        }
+        else {
+            pokemons = allPokemon
+        }
+        paginate(currentPage, PAGE_SIZE, pokemons)
+        const numPages = Math.ceil(pokemons.length / PAGE_SIZE)
+        updatePaginationDiv(currentPage, numPages, pokemons)
+    })
     paginate(currentPage, PAGE_SIZE, pokemons)
     const numPages = Math.ceil(pokemons.length / PAGE_SIZE)
     updatePaginationDiv(currentPage, numPages, pokemons)
 
      $('body').on('click', '.pokeCard', async function (e) {
         const pokemonName = $(this).attr('pokeName')
-        console.log("pokemonName: ", pokemonName);
         const res = await axios.get(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`)
-        console.log("res.data: ", res.data);
         const types = res.data.types.map((type) => type.type.name)
-        console.log("types: ", types);
         $('.modal-body').html(`
             <div style="width:200px">
                 <img src="${res.data.sprites.other['official-artwork'].front_default}" alt="${res.data.name}"/>
@@ -118,10 +180,12 @@ const setup = async () => {
             `)
     })
     $('body').on('click', ".numberedButtons", async function (e) {
-     currentPage = Number(e.target.value)
-     paginate(currentPage, PAGE_SIZE, pokemons) 
-     updatePaginationDiv(currentPage, numPages, pokemons)
+        currentPage = Number(e.target.value)
+        paginate(currentPage, PAGE_SIZE, pokemons) 
+        updatePaginationDiv(currentPage, numPages, pokemons)
     })
+
+
 }
 
 $(document).ready(setup)
